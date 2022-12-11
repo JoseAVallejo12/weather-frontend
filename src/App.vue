@@ -3,6 +3,7 @@
 </template>
 
 <style>
+@import '/node_modules/primeflex/primeflex.css';
 html,
 body,
 div,
