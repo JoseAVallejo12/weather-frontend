@@ -1,46 +1,57 @@
 <!-- eslint-disable no-return-assign -->
 <template>
-    <DataView :value="cars" :layout="layout" :sortOrder="sortOrder" :sortField="sortField">
-        <template #header>
-            <div class="grid grid-nogutter">
-                <div class="col-6" style="text-align: left">
-                    <Dropdown
-                        v-model="sortKey"
-                        :options="sortOptions"
-                        optionLabel="label"
-                        placeholder="Sort By"
-                        @change="onSortChange($event)"
-                    />
+    <div class="custom">
+        <DataView :value="cities" :layout="layout" :sortOrder="sortOrder" :sortField="sortField">
+            <template #header>
+                <div class="grid grid-nogutter justify-content-center">
+                    <div class="col-6" style="text-align: left">
+                        <Dropdown
+                            v-model="sortKey"
+                            :options="sortOptions"
+                            optionLabel="label"
+                            placeholder="Sort By"
+                            @change="onSortChange($event)"
+                        />
+                    </div>
+                    <div class="col-6" style="text-align: right">
+                        <DataViewLayoutOptions v-model="layout" />
+                    </div>
                 </div>
-                <div class="col-6" style="text-align: right">
-                    <DataViewLayoutOptions v-model="layout" />
+            </template>
+            <template #list="slotProps">
+                <div class="col-12">
+                    <CityCard :city="slotProps" />
                 </div>
-            </div>
-        </template>
-        <template #list="slotProps">
-            <div>
-                Vin: <b>{{ slotProps.data.vin }}</b>
-            </div>
-        </template>
-        <template #grid="slotProps">
-            <div>
-                Vin: <b>{{ slotProps.data.vin }}</b>
-            </div>
-        </template>
-    </DataView>
+            </template>
+            <template #grid="slotProps">
+                <div class="col-12 md:col-4 lg:col-3">
+                    <CityCard :city="slotProps" />
+                </div>
+            </template>
+        </DataView>
+    </div>
 </template>
 
 <script>
+import DataView from 'primevue/dataview'
+import Dropdown from 'primevue/dropdown'
+import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'
+import events from '../core/store'
 import ProductService from '../core/ProductService'
-// import CityCard from './CityCard.vue'
+import CityCard from './CityCard.vue'
 
 export default {
     name: 'CitiesView',
-    components: {},
+    components: {
+        DataView,
+        Dropdown,
+        DataViewLayoutOptions,
+        CityCard,
+    },
     data() {
         return {
-            cars: null,
-            layout: 'list',
+            cities: [],
+            layout: 'grid',
             sortKey: null,
             sortOrder: null,
             sortField: null,
@@ -53,13 +64,17 @@ export default {
     },
     productService: null,
     created() {
+        console.log('created')
         this.productService = new ProductService()
     },
     mounted() {
-        // eslint-disable-next-line no-return-assign
-        this.productService.getProducts().then(({ data }) => {
-            this.cars = data
-            console.log(this.products)
+        events.socket.on('cities', (data) => {
+            this.cities = data
+            console.log('cities event', data)
+        })
+        events.socket.on('search', (data) => {
+            this.cities.push(data)
+            console.log('search event', data)
         })
     },
     methods: {
@@ -81,130 +96,30 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.card {
-    background: #ffffff;
-    padding: 2rem;
-    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-    margin-bottom: 2rem;
-}
-.p-dropdown {
-    width: 14rem;
-    font-weight: normal;
-}
-
-.product-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.product-description {
-    margin: 0 0 1rem 0;
-}
-
-.product-category-icon {
-    vertical-align: middle;
-    margin-right: 0.5rem;
-}
-
-.product-category {
-    font-weight: 600;
-    vertical-align: middle;
-}
-
-::v-deep(.product-list-item) {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    width: 100%;
-
-    img {
-        width: 50px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-        margin-right: 2rem;
+<style lang="scss">
+.p-dataview-content > div > div > div > div {
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    &:hover {
+        box-shadow: 0px 0px 0.3px rgba(0, 0, 0, 0.001), 0px 0px 0.7px rgba(0, 0, 0, 0.002),
+            0px 0.2px 1.2px rgba(0, 0, 0, 0.004), 0.1px 0.4px 1.9px rgba(0, 0, 0, 0.01),
+            0.1px 0.8px 2.9px rgba(0, 0, 0, 0.022), 0.3px 1.6px 4.5px rgba(0, 0, 0, 0.048),
+            0.5px 2.9px 7.5px rgba(0, 0, 0, 0.098), 1px 6px 15px rgba(0, 0, 0, 0.23);
+        border-radius: 3px;
     }
-
-    .product-list-detail {
-        flex: 1 1 0;
-    }
-
-    .p-rating {
-        margin: 0 0 0.5rem 0;
-    }
-
-    .product-price {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        align-self: flex-end;
-    }
-
-    .product-list-action {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .p-button {
-        margin-bottom: 0.5rem;
-    }
-}
-
-::v-deep(.product-grid-item) {
-    margin: 0.5rem;
-    border: 1px solid var(--surface-border);
-
-    .product-grid-item-top,
-    .product-grid-item-bottom {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    img {
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-        margin: 2rem 0;
-    }
-
-    .product-grid-item-content {
-        text-align: center;
-    }
-
-    .product-price {
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-}
-
-@media screen and (max-width: 576px) {
-    .product-list-item {
-        flex-direction: column;
-        align-items: center;
-
-        img {
-            margin: 2rem 0;
-        }
-
-        .product-list-detail {
-            text-align: center;
-        }
-
-        .product-price {
-            align-self: center;
-        }
-
-        .product-list-action {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-list-action {
-            margin-top: 2rem;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('../assets/undraw_season_change_f99v.svg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-radius: 3px;
+        opacity: 0.2;
     }
 }
 </style>

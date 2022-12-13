@@ -20,7 +20,6 @@ export default {
         events.socket.on('connect', () => {
             console.log('connected to socket')
         })
-        console.log(`the component is now mounted.`)
     },
 }
 </script>

@@ -1,15 +1,7 @@
-/* eslint-disable vue/multi-word-component-names */
-// import { createApp } from 'vue';
-// import PrimeVue from 'primevue/config';
-// import App from './App.vue';
-
-
-// createApp(App).use(router).use(PrimeVue).mount('#app');
 import { createApp } from 'vue'
 import PrimeVue from 'primevue/config';
-// import Button from 'primevue/button';
-// import Toast from 'primevue/toast';
-// import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
 import router from './router';
 import App from './App.vue'
 
@@ -19,10 +11,9 @@ import 'primeicons/primeicons.css';
 
 const app = createApp(App);
 app.use(PrimeVue);
-// app.use(ToastService);
-app.use(router);
+app.use(ConfirmationService);
+app.use(ToastService);
 
-// app.component('Button', Button);
-// app.component('Toast', Toast);
+app.use(router);
 
 app.mount('#app');
