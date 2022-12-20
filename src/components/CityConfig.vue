@@ -54,11 +54,11 @@ export default {
         }
     },
     mounted() {
-        events.socket.on('error', () => {
+        events.socket.on('error', (message) => {
             this.$toast.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'City not found',
+                detail: message,
                 life: 3000,
             })
         })
